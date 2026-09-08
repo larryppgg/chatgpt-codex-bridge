@@ -14,6 +14,13 @@ and entrypoint change.
 
 ## Contributor verification follow-through
 
-- [ ] Consolidate existing suites into make check and run locally.
-- [ ] Add credential-free macOS CI and inspect the remote result.
-- [ ] Extend the presentation skill to cover executable validation and CI proof.
+- [x] Consolidate existing suites into make check and run locally.
+- [x] Add credential-free macOS CI and inspect the remote result.
+- [x] Extend the presentation skill to cover executable validation and CI proof.
+
+The first hosted macOS run reproduced a legacy-uninstall failure: plutil's
+failed optional extraction could write diagnostics to stdout. The reader now
+publishes only successful extraction output. The exact-path deletion guard is
+unchanged. Existing isolated installer tests pass locally and on GitHub.
+Hosted verification: https://github.com/larryppgg/chatgpt-codex-bridge/actions/runs/34226068385
+at runtime commit 4d88bf3e1b2830e32c01e959436f6ad5fe962d01: success.
