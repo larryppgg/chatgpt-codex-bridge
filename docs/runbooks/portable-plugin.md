@@ -23,7 +23,10 @@ codex plugin add chatgpt-codex-bridge@chatgpt-codex-bridge
 
 Start a new Codex/ChatGPT desktop session after plugin installation so the new
 Skill inventory is loaded. Alternatively, from a source checkout, use the
-scripts directly under `plugins/chatgpt-codex-bridge/`.
+scripts directly under `plugins/chatgpt-codex-bridge/`. Current source checkouts
+also provide `zsh bridge.zsh --help` at the repository root; it delegates to the
+same packaged service and accepts the same install options. This convenience
+entry is on the development branch and is not part of the v0.6.1 plugin tag.
 
 The repository is public under MIT. It is a community package, not an OpenAI
 product. Repository access does not provide any device's Tunnel profile,
@@ -58,6 +61,11 @@ Run from the plugin root:
 caller cannot change these values. The safe preset applies to threads created
 through that installation; continue only the signed `threadId` capability
 returned by the same attached device app.
+
+The current safe preset exposes only the synchronous `codex`/`codex-reply`
+surface. The new-project, background-job and Apps-card workflow below requires
+`personal-full-control`; changing to safe is not a drop-in way to retain those
+async capabilities with narrower permissions.
 
 Version 0.6.1 starts a new context-bound `jobs-v3` capability store. Older job
 cards and identifiers do not cross this security boundary. Complete old work

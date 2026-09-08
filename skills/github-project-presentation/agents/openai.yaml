@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub 项目表达与发布"
+  short_description: "对照代码与参考仓库整理清晰 README、上手步骤、截图和发布证据"
+  default_prompt: "使用 $github-project-presentation 改善当前仓库的 README 和首次使用体验，并验证发布内容。"

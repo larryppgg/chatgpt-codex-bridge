@@ -1,20 +1,106 @@
 # ChatGPT Codex Bridge
 
-让 ChatGPT 网页对话通过 OpenAI Secure MCP Tunnel 调度本机 Codex，并把
-长任务状态安全地带回同一条 ChatGPT 对话。
+**在 ChatGPT 里交代任务，让本机 Codex 创建项目、写代码和运行测试。**
 
-[English reference](#english-reference)
+适合希望在 ChatGPT 网页里主导开发，并在 Mac 的 Codex App 中查看项目和任务的用户。
+ChatGPT 派工与审查，Codex 执行；同一项目沿用同一任务继续修改。
+
+macOS · 社区项目 · [MIT](LICENSE) · [安装与恢复](#快速开始) · [常见问题](#已踩过的坑) · [English](#english-reference)
+
+## 快速开始
+
+### 交给 Codex 安装
+
+把下面这段话复制到 **Mac 上的 Codex**：
+
+```text
+请安装并配置 https://github.com/larryppgg/chatgpt-codex-bridge 。
+先检查现有安装，保留已有项目和任务。阅读仓库安装说明与
+chatgpt-codex-controller Skill，核对 Codex 登录、官方 tunnel-client
+和本设备 Secure Tunnel profile。缺少账号侧能力时准确告诉我缺什么。
+使用已有安装器配置工作区，运行 doctor，再指导我在 ChatGPT 附加连接器。
+默认采用个人全权限预设，并说明它允许本机写入和命令执行。
+完成后逐项报告：本机服务、ChatGPT 工具可调用、独立项目/任务、
+一次演示任务的文件与测试结果。未验证的项目标为未验证。
+```
+
+需要准备：Mac、可用的 Codex 登录、Python 3、官方 `tunnel-client` 及本设备
+Secure Tunnel profile。ChatGPT 账号必须实际提供相应连接入口。
+登录、验证码和账号授权可能需要用户完成；复制这段话不会自动获得这些权限。
+
+### 从源码手动安装
+
+以下命令在终端执行；首次克隆选择一个不存在的目录：
+
+```zsh
+git clone https://github.com/larryppgg/chatgpt-codex-bridge.git
+cd chatgpt-codex-bridge
+zsh bridge.zsh --help
+```
+
+接着在**仓库根目录**安装（替换示例参数，工作区目录须已存在）：
+
+```zsh
+zsh bridge.zsh install \
+  --profile YOUR_DEVICE_PROFILE \
+  --workspace /absolute/existing/workspace \
+  --preset personal-full-control
+zsh bridge.zsh doctor
+```
+
+`personal-full-control` 允许 Codex 完整本机访问且不逐项审批；需要工作区范围
+写入与审批时用 `workspace-safe`，但该预设目前只公开同步工具，**不支持下面的
+异步新项目、后台 Job 和状态卡片流程**。此处安装器使用已有 profile，
+不会代为完成 ChatGPT 账号授权。详细步骤见 [安装手册](docs/runbooks/portable-plugin.md)。
+
+偏好 Codex 插件管理器时，可使用 [固定版本安装](docs/runbooks/portable-plugin.md#install-the-verified-release)；
+根目录的 `bridge.zsh` 是源码入口，插件包内继续使用 `scripts/` 下的命令。
+
+## 第一次使用
+
+本节使用 `personal-full-control` 预设。
+
+在 ChatGPT 中授权本设备的 Secure Tunnel App，选择 **Use in chat / 在聊天中试用**，
+确认输入框附加了 `Codex MCP Guard`。然后发送：
+
+```text
+用 Codex 新建 bridge-demo 项目，做一个纯本地的 Markdown 待办清单工具。
+先用 workspace-new-project 初始化 spec 和 ADR，再实现、测试。
+你负责审查结果，缺什么就在同一 Codex 任务继续修改。
+```
+
+完成后应能确认：
+
+- Codex App 出现独立项目和对应任务；
+- 项目中实际有文件和测试结果；
+- ChatGPT 收到终态结果，并能继续同一任务。
+
+`doctor` 的本机 `ready` 只证明服务检查通过，不能替代这三项验证。
+任务返回 `queued` 或 `running` 时仍在处理，ChatGPT 应继续等待。
+当前轮结束后，可打开原对话的任务卡片，点击“把结果发给 ChatGPT 审查”恢复。
+
+继续同一项目时可以说：“继续刚才的项目，加上完成状态筛选，运行测试后汇报。”
+不要为了追问进度重新创建项目。
+
+## 它解决什么问题
+
+- ChatGPT 负责理解目标、拆任务、检查结果和决定下一步。
+- Secure MCP Tunnel 把 ChatGPT 的 MCP 调用转发到本机，不要求开放公网
+  入站端口。
+- Codex MCP Guard 负责固定工作区、权限预设、Job 状态和任务恢复。
+- Codex App Server 在独立项目目录中创建可被 Codex 桌面端识别的项目和
+  任务。
+- 新项目第一条指令显式调用内置 `workspace-new-project` Skill，先建立
+  `AGENTS.md`、README、spec、ADR、源码与项目记忆结构。
 
 ## 页面演示
 
-下面不是流程图，也不是已登录账号的截图。它们由仓库实际发布的
-`WIDGET_HTML` 页面代码在本地浏览器中渲染，项目结果和 Job ID 均为合成
-演示数据，因此不包含账号、设备名、真实路径、Tunnel profile、对话 ID、
-浏览器书签或通知。
+以下是本项目状态卡片的浏览器截图，使用合成数据；它们演示组件的三种状态，
+不代表一次真实 ChatGPT → Codex 全链路执行。
 
 ### 1. Codex 在后台执行
 
-ChatGPT 回合不需要持续在线；页面卡片会继续读取本机 Job 状态。
+Codex 可在后台执行。卡片保持加载且客户端支持组件工具时，会轮询 Job 状态。
 
 ![Codex 后台执行页面演示](docs/assets/readme/codex-job-running.jpg)
 
@@ -32,24 +118,28 @@ ChatGPT 回合不需要持续在线；页面卡片会继续读取本机 Job 状�
 
 ![Codex 中断恢复页面演示](docs/assets/readme/codex-job-interrupted.jpg)
 
-演示页可由以下脚本从当前 Guard 源码重新生成：
+## 日常操作
+
+以下命令均从源码仓库根目录执行，也可从任意目录使用入口脚本的绝对路径。
 
 ```zsh
-python3 scripts/docs/render-widget-demo.py \
-  --state completed \
-  --output /tmp/codex-widget-demo.html
+zsh bridge.zsh status
+zsh bridge.zsh doctor
+zsh bridge.zsh restart
+zsh bridge.zsh stop
+zsh bridge.zsh uninstall
 ```
 
-## 它解决什么问题
+在 `personal-full-control` 预设下，长任务应使用：
 
-- ChatGPT 负责理解目标、拆任务、检查结果和决定下一步。
-- Secure MCP Tunnel 把 ChatGPT 的 MCP 调用转发到本机，不要求开放公网
-  入站端口。
-- Codex MCP Guard 负责固定工作区、权限预设、Job 状态和任务恢复。
-- Codex App Server 在独立项目目录中创建可被 Codex 桌面端识别的项目和
-  任务。
-- 新项目第一条指令显式调用内置 `workspace-new-project` Skill，先建立
-  `AGENTS.md`、README、spec、ADR、源码与项目记忆结构。
+- 新项目：`codex-start` → 重复 `codex-wait`；
+- 同项目继续：`codex-reply-async` → 重复 `codex-wait`；
+- 旧卡片恢复：`codex-job-open`，不要重复 `codex-start`；
+- `codex` / `codex-reply` 只用于短诊断。
+
+`stop`、重装和卸载会撤销归属已验证的后台进程组；卸载会清除 Bridge
+自己的 capability/job 状态，但保留外部 Tunnel profile、项目仓库和 Codex
+对话历史。无法证明进程归属时会 fail closed，避免误杀其他进程。
 
 ## 安全模型与信任边界
 
@@ -71,73 +161,9 @@ python3 scripts/docs/render-widget-demo.py \
 
 `personal-full-control` 是高权限预设：
 `danger-full-access + approval-policy=never`。共享或低信任环境应使用
-`workspace-safe`。MCP 调用方不能临时切换预设、扩大权限或指定任意
+`workspace-safe` 的同步诊断工具；当前异步开发工作流只支持全权限预设。
+MCP 调用方不能临时切换预设、扩大权限或指定任意
 `cwd`；公开 Job/Thread capability 会绑定安装、工作区和权限策略。
-
-## 安装
-
-### 前置条件
-
-- macOS；
-- 已登录且可以运行的 Codex；
-- Python 3；
-- OpenAI 官方 `tunnel-client`；
-- 本设备自己的 Tunnel profile；
-- 一个已有的 workspace 容器目录。
-
-### 安装固定版本
-
-```zsh
-codex plugin marketplace add larryppgg/chatgpt-codex-bridge \
-  --ref chatgpt-codex-bridge-v0.6.1
-codex plugin add chatgpt-codex-bridge@chatgpt-codex-bridge
-```
-
-插件安装后新开一个 Codex 任务，让 Skill 清单重新加载。进入插件根目录：
-
-```zsh
-/bin/zsh scripts/install-macos.zsh \
-  --profile <本设备的-profile> \
-  --workspace <绝对-workspace-目录> \
-  --preset personal-full-control
-
-/bin/zsh scripts/doctor.zsh
-```
-
-每台设备必须独立完成 Codex 登录、Tunnel 配置和 ChatGPT 授权。不要复制
-其他设备的 profile、凭据、Codex 登录或会话目录。
-
-## ChatGPT 端使用
-
-1. 打开 Developer Mode。
-2. 创建或选择本设备对应的 Secure Tunnel App。
-3. 审查工具及权限并授权。
-4. 选择 **Use in chat / 在聊天中试用**。
-5. 新建对话，确认输入框附近出现 `Codex MCP Guard` pill。
-6. 再发送“使用 Codex 构建这个项目”。
-
-插件安装成功不等于 ChatGPT App 已创建，也不等于当前对话已经附加工具。
-
-## 日常操作
-
-```zsh
-/bin/zsh scripts/chatgpt-codex-bridge.zsh status
-/bin/zsh scripts/chatgpt-codex-bridge.zsh doctor
-/bin/zsh scripts/chatgpt-codex-bridge.zsh restart
-/bin/zsh scripts/chatgpt-codex-bridge.zsh stop
-/bin/zsh scripts/uninstall-macos.zsh
-```
-
-长任务应使用：
-
-- 新项目：`codex-start` → 重复 `codex-wait`；
-- 同项目继续：`codex-reply-async` → 重复 `codex-wait`；
-- 旧卡片恢复：`codex-job-open`，不要重复 `codex-start`；
-- `codex` / `codex-reply` 只用于短诊断。
-
-`stop`、重装和卸载会撤销归属已验证的后台进程组；卸载会清除 Bridge
-自己的 capability/job 状态，但保留外部 Tunnel profile、项目仓库和 Codex
-对话历史。无法证明进程归属时会 fail closed，避免误杀其他进程。
 
 ## 已踩过的坑
 
@@ -160,9 +186,9 @@ App pill 真正在当前对话里。旧对话即使能看到连接器名称，�
 
 ### 4. `Failed to fetch template`
 
-这是 Apps 模板、缓存或连接恢复问题，不代表应该重新启动一个 Codex
-项目。先确认 Tunnel `ready`，重试卡片一次；仍失败时用同一个 Job 调用
-`codex-job-open`。
+这表示卡片资源没有成功加载，单凭这条提示不能确认本机任务是否执行。
+先检查 Tunnel 和原 Job 状态；有有效 Job 时用 `codex-job-open` 重开同一卡片。
+以卡片成功加载、原 Job 状态可读为恢复标志，避免重复提交开发任务。
 
 ### 5. `queued` 不是完成
 
@@ -207,7 +233,24 @@ MCP 客户端加载，会形成 `Codex → Guard → Codex` 的递归或重复�
 
 已登录账号截图可能暴露用户名、App/Tunnel 名称、对话 ID、真实项目、路径、
 书签和通知。本 README 只发布由实际组件代码渲染的合成演示页面，并明确
-标记 `DEMO · SYNTHETIC DATA`；不得把私人界面截图简单打码后提交。
+标记 `DEMO · SYNTHETIC DATA`。若使用真实产品截图，须审查裁剪或遮盖后的
+最终文件与元数据，并保留足够的操作上下文；这些组件预览不代替全链路验收。
+
+## 开发与仓库导航
+
+| 位置 | 用途 |
+| --- | --- |
+| `bridge.zsh` | 源码安装、诊断与停止入口 |
+| `scripts/bridge/` | MCP Guard、异步 Job 与 Codex App Server 集成 |
+| `plugins/chatgpt-codex-bridge/` | 可分发插件、服务脚本和控制技能 |
+| `tests/bridge/`、`tests/portable/` | 协议、安装与打包验证 |
+| `docs/runbooks/` | 安装、升级与恢复说明 |
+| `docs/specs/`、`docs/adr/` | 功能规格及架构决策 |
+| `skills/github-project-presentation/` | 可复用 GitHub 项目表达与发布 skill |
+
+贡献修改时，先说明用户场景与实际变化，运行相关测试；Guard 源码和打包副本须保持一致。
+可复用文档规范见 [GitHub 项目表达 skill](skills/github-project-presentation/SKILL.md)。
+与参考仓库的 [代码及文档比较](docs/specs/github-reader-experience/design.md) 记录了采用与保留的理由。
 
 ## 发布前验证
 
