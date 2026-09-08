@@ -15,3 +15,10 @@ claim automatic setup of unavailable account features, or alter active jobs.
 Acceptance: root help and delegated argument errors work from another directory;
 the README first-use example has observable success criteria; the skill installs
 without device paths or copied credentials. Rollback is reverting these files.
+
+## Reproducible contributor checks
+
+`make check` MUST run the existing protocol, packaging and isolated installer
+suites and propagate any failure. GitHub pull requests and pushes SHOULD run the
+same command on macOS with read-only repository permissions and no credentials.
+Local test success MUST NOT be labelled as live ChatGPT authorization success.

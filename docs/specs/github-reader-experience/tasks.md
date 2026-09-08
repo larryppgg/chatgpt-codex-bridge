@@ -11,3 +11,9 @@ README links/assets resolved. Public checkout sanitization and Gitleaks passed.
 An independent reader review found the safe-preset/async mismatch; both onboarding
 documents now state it. Live account setup was not rerun for this documentation
 and entrypoint change.
+
+## Contributor verification follow-through
+
+- [ ] Consolidate existing suites into make check and run locally.
+- [ ] Add credential-free macOS CI and inspect the remote result.
+- [ ] Extend the presentation skill to cover executable validation and CI proof.

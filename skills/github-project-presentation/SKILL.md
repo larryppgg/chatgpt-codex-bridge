@@ -54,6 +54,13 @@ Keep long incident detail in linked docs; do not copy private conversations.
 
 ## Verify and publish
 
+For code comparisons, trace at least the advertised first-use path from entrypoint
+through execution and recovery. Distinguish presentational gaps from behavioral
+gaps; do not call a README-only revision a runtime improvement. Prefer a common
+local test command backed by existing suites. If adding CI, run that same command
+on the supported platform, avoid account credentials, and read the actual CI
+result after pushing. Never display a passing badge before checks have passed.
+
 Walk the first-use instructions from the stated directory. Test changed behavior
 with the smallest relevant checks; do not add tests merely matching README wording.
 Check rendered image links, language order, install ref, source/package consistency

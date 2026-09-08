@@ -254,6 +254,19 @@ MCP 客户端加载，会形成 `Codex → Guard → Codex` 的递归或重复�
 
 ## 发布前验证
 
+开发者在 macOS 的仓库根目录运行：
+
+```zsh
+make check
+```
+
+这个入口运行现有 Guard 协议、辅助脚本、打包、隔离安装/卸载和脱敏测试。
+GitHub 的 [Checks](https://github.com/larryppgg/chatgpt-codex-bridge/actions/workflows/check.yml)
+使用相同命令。测试采用合成 Codex/Tunnel，不需要账号凭据；真实 ChatGPT
+连接和侧边栏效果仍按“第一次使用”的验收步骤检查。
+
+排查单项失败时可用 `make check-protocol` 或 `make check-portable`，也可单独运行：
+
 ```zsh
 /usr/bin/python3 tests/bridge/test-codex-mcp-guard.py
 /bin/zsh tests/bridge/test-verify-tunnel-client.zsh
