@@ -22,3 +22,7 @@ without device paths or copied credentials. Rollback is reverting these files.
 suites and propagate any failure. GitHub pull requests and pushes SHOULD run the
 same command on macOS with read-only repository permissions and no credentials.
 Local test success MUST NOT be labelled as live ChatGPT authorization success.
+
+When plutil reports a missing optional key on stdout and exits nonzero, the
+installer MUST discard that output and use the legacy default; uninstall MUST
+retain exact-path validation. The existing pre-0.5 uninstall test verifies this.

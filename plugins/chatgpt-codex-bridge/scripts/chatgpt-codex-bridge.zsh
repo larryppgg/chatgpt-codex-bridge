@@ -310,7 +310,13 @@ config_value() {
 }
 
 config_value_optional() {
-  /usr/bin/plutil -extract "$1" raw -o - "${CONFIG_FILE}" 2>/dev/null || true
+  local value
+  # Some macOS releases print missing-key diagnostics to stdout, not stderr.
+  # Only a successful extraction is a value; failed output must not become a path.
+  if value="$(/usr/bin/plutil -extract "$1" raw -o - "${CONFIG_FILE}" 2>/dev/null)"; then
+    print -r -- "${value}"
+  fi
+  return 0
 }
 
 load_config() {
